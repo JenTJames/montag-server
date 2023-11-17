@@ -6,6 +6,9 @@ const bodyParser = require("body-parser");
 const sequelize = require("./utils/database");
 const errorHandler = require("./middlewares/error");
 const userRoutes = require("./routes/user");
+const roleRoutes = require("./routes/role");
+
+require("./models/assocations");
 
 const app = express();
 
@@ -13,13 +16,14 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/users", userRoutes);
+app.use("/roles", roleRoutes);
 
 app.use(errorHandler);
 
 sequelize
   .sync({
     // alter: true,
-    // force: true
+    // force: true,
   })
   .then(() => {
     app.listen(process.env.PORT || 3001, () => {
