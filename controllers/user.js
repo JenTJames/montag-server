@@ -61,11 +61,11 @@ exports.createUser = async (req, res, next) => {
     email: user.email,
     password: hashedPassword,
     phoneNumber: user.phoneNumber,
-    roleId: user.id,
+    roleId: user.role.id,
   };
   try {
     const savedUser = await User.create(newUser);
-    res.status(201).send(savedUser.id);
+    res.status(201).send(savedUser.id.toString());
   } catch (error) {
     next(error, req, res, next);
   }
