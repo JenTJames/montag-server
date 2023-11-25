@@ -6,7 +6,7 @@ exports.findAllRoles = async (req, res, next) => {
     if (!roles || !roles.length) return res.sendStatus(204);
     res.status(200).send(roles);
   } catch (error) {
-    next(error, req, res);
+    next(error, req, res, next);
   }
 };
 
