@@ -3,6 +3,7 @@ const sinon = require("sinon");
 const bcrypt = require("bcrypt");
 
 const UserController = require("../controllers/user");
+const roleController = require("../controllers/role");
 const User = require("../models/User");
 
 describe("../controllers/user.js", () => {
@@ -29,11 +30,15 @@ describe("../controllers/user.js", () => {
           phoneNumber: "8590492117",
           email: "test@test.com",
           password: "asecretpassword",
+          role: {
+            id: 1,
+          },
         },
       };
 
       sinon.stub(bcrypt, "genSalt").resolves(12);
       sinon.stub(bcrypt, "hash").throws(new Error());
+      sinon.stub(roleController, "verifyRole").returns(true);
 
       await UserController.createUser(req, {}, (error) => {
         expect(error).to.be.an.instanceOf(Error);
@@ -51,15 +56,69 @@ describe("../controllers/user.js", () => {
           phoneNumber: "8590492117",
           email: "test@test.com",
           password: "asecretpassword",
+          role: {
+            id: 1,
+          },
         },
       };
 
       sinon.stub(bcrypt, "genSalt").resolves("ooooooo");
       sinon.stub(bcrypt, "hash").resolves("xxxxxxx");
+      sinon.stub(roleController, "verifyRole").returns(true);
       sinon.stub(User, "create").throws(new Error());
 
       await UserController.createUser(req, {}, (error) => {
         expect(error).to.be.an.instanceOf(Error);
+      });
+    });
+
+    it("should return 400 when role verification returns an error", async () => {
+      const req = {
+        body: {
+          firstname: "test",
+          lastname: "test",
+          phoneNumber: "8590492117",
+          email: "test@test.com",
+          password: "asecretpassword",
+          role: {
+            id: 1,
+          },
+        },
+      };
+
+      sinon.stub(bcrypt, "genSalt").returns("ooooooo");
+      sinon.stub(bcrypt, "hash").returns("xxxxxxx");
+      sinon.stub(roleController, "verifyRole").returns(new Error());
+
+      await UserController.createUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.be.equal("Invalid Role");
+        expect(error.code).to.equal(400);
+      });
+    });
+
+    it("should return 400 when role verification returns false", async () => {
+      const req = {
+        body: {
+          firstname: "test",
+          lastname: "test",
+          phoneNumber: "8590492117",
+          email: "test@test.com",
+          password: "asecretpassword",
+          role: {
+            id: 1,
+          },
+        },
+      };
+
+      sinon.stub(bcrypt, "genSalt").returns("ooooooo");
+      sinon.stub(bcrypt, "hash").returns("xxxxxxx");
+      sinon.stub(roleController, "verifyRole").returns(false);
+
+      await UserController.createUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.be.equal("Invalid Role");
+        expect(error.code).to.equal(400);
       });
     });
 
@@ -71,6 +130,9 @@ describe("../controllers/user.js", () => {
           phoneNumber: "1234567890",
           email: "test@test.com",
           password: "asecretpassword",
+          role: {
+            id: 1,
+          },
         },
       };
 
@@ -89,6 +151,7 @@ describe("../controllers/user.js", () => {
 
       sinon.stub(bcrypt, "genSalt").returns("ooooooo");
       sinon.stub(bcrypt, "hash").returns("xxxxxxx");
+      sinon.stub(roleController, "verifyRole").returns(true);
       sinon.stub(User, "create").returns({ id: 1 });
 
       await UserController.createUser(req, res, () => {});

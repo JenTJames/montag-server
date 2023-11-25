@@ -5,7 +5,7 @@ const Role = require("../models/Role");
 const RoleController = require("../controllers/role");
 
 describe("../controllers/role.js", () => {
-  describe("finAllRoles()", () => {
+  describe("findAllRoles()", () => {
     afterEach("Unstub all stubs", () => {
       sinon.restore();
     });
@@ -56,6 +56,41 @@ describe("../controllers/role.js", () => {
       expect(res.data.length).to.be.equal(2);
       expect(res.data).to.be.an.instanceOf(Array);
       expect(res.data[0].id).to.be.equal(1);
+    });
+  });
+
+  describe("verifyRole()", () => {
+    afterEach("Unstub all stubs", () => {
+      sinon.restore();
+    });
+
+    it("should return an error if roleId is falsy", async () => {
+      const isRoleValid = await RoleController.verifyRole(0);
+      expect(isRoleValid).to.be.an.instanceOf(Error);
+    });
+
+    it("should return false if a role with the given id doesn't exist", async () => {
+      sinon.stub(Role, "count").returns(0);
+
+      const isRoleValid = await RoleController.verifyRole(1);
+
+      expect(isRoleValid).to.be.false;
+    });
+
+    it("should return true if a role with the id exists", async () => {
+      sinon.stub(Role, "count").returns(1);
+
+      const isRoleValid = await RoleController.verifyRole(2);
+
+      expect(isRoleValid).to.be.true;
+    });
+
+    it("should return an error if the count operation fails", async () => {
+      sinon.stub(Role, "count").throws(new Error());
+
+      const isRoleValid = await RoleController.verifyRole(1);
+
+      expect(isRoleValid).to.be.an.instanceOf(Error);
     });
   });
 });
