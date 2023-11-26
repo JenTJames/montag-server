@@ -71,6 +71,45 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
+exports.authenticate = async (req, res, next) => {
+  const credentials = req.body;
+  if (!credentials || !credentials.identifier || !credentials.password) {
+    const error = new Error();
+    error.code = 400;
+    return next(error, req, res, next);
+  }
+  const numericRegex = /^[0-9]+$/;
+  let user = null;
+  try {
+    if (numericRegex.test(credentials.identifier)) {
+      user = await User.findOne({
+        where: {
+          phoneNumber: credentials.identifier,
+        },
+      });
+    } else
+      user = await User.findOne({
+        where: {
+          email: credentials.identifier,
+        },
+      });
+    if (!user) {
+      const error = new Error();
+      error.code = 401;
+      return next(error, req, res, next);
+    }
+    const isVerified = await bcrypt.compare(
+      credentials.password,
+      user.password
+    );
+    user.password = undefined;
+    if (isVerified) return res.status(200).send(user);
+    return res.sendStatus(401);
+  } catch (error) {
+    next(error, req, res, next);
+  }
+};
+
 exports.checkDuplicateEmail = async (email) => {
   if (!email) {
     const error = new Error("Invalid Email");

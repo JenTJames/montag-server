@@ -267,7 +267,114 @@ describe("../controllers/user.js", () => {
       await UserController.createUser(req, res, () => {});
 
       expect(res.statusCode).to.be.equal(201);
-      expect(res.data).to.be.equal(1);
+      expect(res.data).to.be.equal("1");
+    });
+  });
+
+  describe("authenticate()", () => {
+    let req;
+    let res;
+    beforeEach("Create req and res object", () => {
+      req = {
+        body: {
+          identifier: "abc@mkl.com",
+          password: "xxxxxx",
+        },
+      };
+      res = {
+        statusCode: 0,
+        status: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        sendStatus: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        data: null,
+        send: (data) => {
+          res.data = data;
+          return res;
+        },
+      };
+    });
+
+    it("should return status 400 if the request is missing required attributes", async () => {
+      await UserController.authenticate({}, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.equal(400);
+      });
+    });
+
+    it("should return status 401 if a user with the given email/phone number is not found", async () => {
+      sinon.stub(User, "findOne").returns(null);
+
+      await UserController.authenticate(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.equal(401);
+      });
+    });
+
+    it("should return status 401 if the password does not match for a given phone number", async () => {
+      req.body.identifier = "12345";
+
+      sinon.stub(User, "findOne").returns({
+        password: "XXXX",
+      });
+      sinon.stub(bcrypt, "compare").returns(false);
+
+      await UserController.authenticate(req, res, () => {});
+
+      expect(res.statusCode).to.equal(401);
+    });
+
+    it("should return status 401 if the password does not match for a given email", async () => {
+      sinon.stub(User, "findOne").returns({
+        password: "XXXX",
+      });
+      sinon.stub(bcrypt, "compare").returns(false);
+
+      await UserController.authenticate(req, res, () => {});
+
+      expect(res.statusCode).to.equal(401);
+    });
+
+    it("should throw an error if user find operation fails", async () => {
+      sinon.stub(User, "findOne").throws(new Error());
+
+      await UserController.authenticate(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+      });
+    });
+
+    it("should return status 200 if the password matches for a given phone number", async () => {
+      req.body.identifier = "12345";
+
+      sinon.stub(User, "findOne").returns({
+        id: 1,
+        password: "XXXX",
+      });
+      sinon.stub(bcrypt, "compare").returns(true);
+
+      await UserController.authenticate(req, res, () => {});
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.data.password).to.be.undefined;
+      expect(res.data.id).to.equal(1);
+    });
+
+    it("should return status 200 if the password matches for a given email", async () => {
+      sinon.stub(User, "findOne").returns({
+        id: 1,
+        password: "XXXX",
+      });
+      sinon.stub(bcrypt, "compare").returns(true);
+
+      await UserController.authenticate(req, res, () => {});
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.data.password).to.be.undefined;
+      expect(res.data.id).to.equal(1);
     });
   });
 
