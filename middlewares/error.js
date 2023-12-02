@@ -9,9 +9,13 @@ module.exports = (error, _, res, next) => {
         "Either all or some of the required attributes are missing";
       break;
 
+    case 401:
+      message = error.message || "Unauthorized";
+      break;
+
     default:
       message = error.message || "Internal Server Error";
       break;
   }
-  return res.status(400).send(message);
+  return res.status(error.code).send(message);
 };
