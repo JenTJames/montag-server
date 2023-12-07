@@ -3,6 +3,22 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const roleController = require("../controllers/role");
 
+exports.getUser = async (req, res, next) => {
+  const { email } = req.query;
+  if (!email) {
+    const error = new Error();
+    error.code = 400;
+    return next(error, req, res, next);
+  }
+  const user = await this.getUserByEmail(email);
+  if (!user || user instanceof Error) {
+    const error = new Error("Could not find the user");
+    error.code = 400;
+    return next(error, req, res, next);
+  }
+  res.status(200).send(user);
+};
+
 exports.createUser = async (req, res, next) => {
   const user = req.body;
   if (
@@ -107,6 +123,25 @@ exports.authenticate = async (req, res, next) => {
     return res.sendStatus(401);
   } catch (error) {
     next(error, req, res, next);
+  }
+};
+
+exports.getUserByEmail = async (email) => {
+  if (!email) {
+    const error = new Error("Invalid Email");
+    error.code = 400;
+    return error;
+  }
+
+  try {
+    const user = await User.findOne({
+      where: {
+        email,
+      },
+    });
+    return user ? { ...user.dataValues, password: undefined } : null;
+  } catch (error) {
+    return error;
   }
 };
 

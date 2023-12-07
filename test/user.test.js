@@ -11,6 +11,75 @@ describe("../controllers/user.js", () => {
     sinon.restore();
   });
 
+  describe("getUser()", () => {
+    let req;
+    let res;
+    beforeEach("Create req and res object", () => {
+      req = {
+        query: {
+          email: "abc@mkl.com",
+        },
+      };
+      res = {
+        statusCode: 0,
+        status: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        sendStatus: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        data: null,
+        send: (data) => {
+          res.data = data;
+          return res;
+        },
+      };
+    });
+
+    it("should return status 400 if the email is not present", async () => {
+      req.query.email = undefined;
+
+      await UserController.getUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.be.equal(400);
+      });
+    });
+
+    it("should return status 400 if the user returned is null", async () => {
+      sinon.stub(UserController, "getUserByEmail").resolves(null);
+
+      await UserController.getUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal("Could not find the user");
+        expect(error.code).to.be.equal(400);
+      });
+    });
+
+    it("should return status 400 if the user returned is an instance of Error", async () => {
+      sinon.stub(UserController, "getUserByEmail").resolves(new Error());
+
+      await UserController.getUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal("Could not find the user");
+        expect(error.code).to.be.equal(400);
+      });
+    });
+
+    it("should return status 200 and the user if the find operation is success", async () => {
+      sinon.stub(UserController, "getUserByEmail").resolves({
+        id: 1,
+      });
+
+      await UserController.getUser(req, res, () => {});
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.data).to.be.an.instanceOf(Object);
+      expect(res.data.id).to.equal(1);
+    });
+  });
+
   describe("createUser()", () => {
     it("should return 400 when mandatory user details are missing", async () => {
       const req = {
@@ -375,6 +444,44 @@ describe("../controllers/user.js", () => {
       expect(res.statusCode).to.equal(200);
       expect(res.data.password).to.be.undefined;
       expect(res.data.id).to.equal(1);
+    });
+  });
+
+  describe("getUserByEmail()", () => {
+    it("should return code 400 if email is not provided", async () => {
+      const response = await UserController.getUserByEmail();
+      expect(response).to.be.an.instanceOf(Error);
+      expect(response.code).to.equal(400);
+      expect(response.message).to.equal("Invalid Email");
+    });
+
+    it("should return the user without the password if the user is found", async () => {
+      sinon.stub(User, "findOne").resolves({
+        dataValues: {
+          id: 1,
+          password: "xxxx",
+        },
+      });
+
+      const response = await UserController.getUserByEmail("test@test.com");
+      expect(response).to.not.be.an.instanceOf(Error);
+      expect(response.password).to.be.undefined;
+    });
+
+    it("should return null if the user is not found", async () => {
+      sinon.stub(User, "findOne").resolves(null);
+
+      const response = await UserController.getUserByEmail("test@test.com");
+
+      expect(response).to.be.null;
+    });
+
+    it("should return the error if the find operation fails", async () => {
+      sinon.stub(User, "findOne").throws(new Error());
+
+      const response = await UserController.getUserByEmail("test@test.com");
+
+      expect(response).to.be.an.instanceOf(Error);
     });
   });
 
