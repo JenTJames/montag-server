@@ -455,19 +455,6 @@ describe("../controllers/user.js", () => {
       expect(response.message).to.equal("Invalid Email");
     });
 
-    it("should return the user without the password if the user is found", async () => {
-      sinon.stub(User, "findOne").resolves({
-        dataValues: {
-          id: 1,
-          password: "xxxx",
-        },
-      });
-
-      const response = await UserController.getUserByEmail("test@test.com");
-      expect(response).to.not.be.an.instanceOf(Error);
-      expect(response.password).to.be.undefined;
-    });
-
     it("should return null if the user is not found", async () => {
       sinon.stub(User, "findOne").resolves(null);
 
@@ -479,9 +466,53 @@ describe("../controllers/user.js", () => {
     it("should return the error if the find operation fails", async () => {
       sinon.stub(User, "findOne").throws(new Error());
 
-      const response = await UserController.getUserByEmail("test@test.com");
+      const response = await UserController.getUserByEmail(
+        "test@test.com",
+        false
+      );
 
       expect(response).to.be.an.instanceOf(Error);
+    });
+
+    it("should return the user without the password and organization if the user is found and organization query is not set", async () => {
+      sinon.stub(User, "findOne").resolves({
+        dataValues: {
+          id: 1,
+          password: "xxxx",
+        },
+      });
+
+      const response = await UserController.getUserByEmail("test@test.com");
+      expect(response).to.not.be.an.instanceOf(Error);
+      expect(response.password).to.be.undefined;
+      expect(response.organization).to.be.undefined;
+    });
+
+    it("should return the user with organization details if the user is found and organization query is true", async () => {
+      // Stub the user.getOrganization() method
+      const organizationStub = sinon.stub().resolves({ id: 1 });
+
+      // Mock the User model and the method
+      const userMock = {
+        getOrganization: organizationStub,
+        dataValues: {
+          id: 1,
+          password: "xxxx",
+        },
+      };
+
+      // Replace the actual method with the stubbed method
+      sinon.stub(User, "findOne").resolves(userMock);
+
+      const response = await UserController.getUserByEmail(
+        "test@test.com",
+        true
+      );
+
+      expect(response).to.not.be.an.instanceOf(Error);
+      expect(response.id).to.equal(1);
+      expect(response.password).to.be.undefined;
+      expect(response.organization.id).to.equal(1);
     });
   });
 
