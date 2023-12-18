@@ -88,6 +88,31 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
+exports.updateUser = async (req, res, next) => {
+  const user = req.body;
+
+  if (!user || !user.id) {
+    const error = new Error();
+    error.code = 400;
+    return next(error, req, res, next);
+  }
+
+  try {
+    const numberOfUsersUpdated = await User.update(user, {
+      where: {
+        id: user.id,
+      },
+    });
+    if (!numberOfUsersUpdated) {
+      const error = new Error("Could not edit the user");
+      return next(error, req, res, next);
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    next(error, req, res, next);
+  }
+};
+
 exports.authenticate = async (req, res, next) => {
   const credentials = req.body;
   if (!credentials || !credentials.identifier || !credentials.password) {

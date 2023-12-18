@@ -340,6 +340,82 @@ describe("../controllers/user.js", () => {
     });
   });
 
+  describe("updateUser()", () => {
+    let req;
+    let res;
+    beforeEach("Create req and res object", () => {
+      req = {
+        body: {
+          id: 1,
+          firstname: "John",
+          lastname: "Doe",
+          phoneNumber: "1234567890",
+          organizationId: 1,
+        },
+      };
+      res = {
+        statusCode: 0,
+        status: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        sendStatus: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+        data: null,
+        send: (data) => {
+          res.data = data;
+          return res;
+        },
+      };
+    });
+
+    it("should return 400 if the user is not set", async () => {
+      req.body = undefined;
+
+      await UserController.updateUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.equal(400);
+      });
+    });
+
+    it("should return 400 if the user id is not set", async () => {
+      req.body.id = undefined;
+
+      await UserController.updateUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.equal(400);
+      });
+    });
+
+    it("should return 500 if the update operation fails", async () => {
+      sinon.stub(User, "update").throws(new Error());
+
+      await UserController.updateUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+      });
+    });
+
+    it("should throw an error if no user details where updated", async () => {
+      sinon.stub(User, "update").resolves(0);
+
+      await UserController.updateUser(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.message).to.equal("Could not edit the user");
+      });
+    });
+
+    it("should return 200 if the user details are updated", async () => {
+      sinon.stub(User, "update").resolves(1);
+
+      await UserController.updateUser(req, res, () => {});
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.data.id).to.equal(1);
+    });
+  });
+
   describe("authenticate()", () => {
     let req;
     let res;
