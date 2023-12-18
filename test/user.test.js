@@ -657,4 +657,66 @@ describe("../controllers/user.js", () => {
       expect(isDuplicate).to.be.an.instanceOf(Error);
     });
   });
+
+  describe("uploadUserImage()", () => {
+    let req;
+    let res;
+    beforeEach("Create req and res object", () => {
+      req = {
+        query: {
+          id: 1,
+        },
+        file: {
+          filename: "thisisafile",
+        },
+      };
+      res = {
+        statusCode: 0,
+        sendStatus: (code) => {
+          res.statusCode = code;
+          return res;
+        },
+      };
+    });
+
+    it("should return 204 if file is not set", async () => {
+      req.file = undefined;
+
+      await UserController.uploadUserImage(req, res, () => {});
+
+      expect(res.statusCode).to.equal(204);
+    });
+
+    it("should return 400 if the user with the given id is not present", async () => {
+      sinon.stub(User, "findByPk").resolves(null);
+
+      await UserController.uploadUserImage(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+        expect(error.code).to.equal(400);
+        expect(error.message).to.equal(
+          "Could not locate the user with the given ID"
+        );
+      });
+    });
+
+    it("should throw an error if the find operation fails", async () => {
+      sinon.stub(User, "findByPk").throws(new Error());
+
+      await UserController.uploadUserImage(req, {}, (error) => {
+        expect(error).to.be.an.instanceOf(Error);
+      });
+    });
+
+    it("should return 200 if the image is successfully saved", async () => {
+      sinon.stub(User, "findByPk").resolves({
+        save: () => {},
+      });
+
+      await UserController.uploadUserImage(req, res, (error) => {
+        console.log(error);
+      });
+
+      expect(res.statusCode).to.equal(200);
+    });
+  });
 });
