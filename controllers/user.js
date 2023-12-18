@@ -4,13 +4,14 @@ const User = require("../models/User");
 const roleController = require("../controllers/role");
 
 exports.getUser = async (req, res, next) => {
+  const { organization } = req.query;
   const { email } = req.query;
   if (!email) {
     const error = new Error();
     error.code = 400;
     return next(error, req, res, next);
   }
-  const user = await this.getUserByEmail(email);
+  const user = await this.getUserByEmail(email, organization);
   if (!user || user instanceof Error) {
     const error = new Error("Could not find the user");
     error.code = 400;
@@ -126,7 +127,7 @@ exports.authenticate = async (req, res, next) => {
   }
 };
 
-exports.getUserByEmail = async (email) => {
+exports.getUserByEmail = async (email, includeOrganization = false) => {
   if (!email) {
     const error = new Error("Invalid Email");
     error.code = 400;
@@ -139,7 +140,20 @@ exports.getUserByEmail = async (email) => {
         email,
       },
     });
-    return user ? { ...user.dataValues, password: undefined } : null;
+    let organization = null;
+
+    if (includeOrganization) {
+      organization = await user.getOrganization();
+    }
+
+    return user
+      ? {
+          ...user.dataValues,
+          password: undefined,
+          organizationId: undefined,
+          organization: organization || undefined,
+        }
+      : null;
   } catch (error) {
     return error;
   }
