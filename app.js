@@ -10,20 +10,21 @@ const errorHandler = require("./middlewares/error");
 const userRoutes = require("./routes/user");
 const roleRoutes = require("./routes/role");
 const organizationRoutes = require("./routes/organization");
+const imageRoutes = require("./routes/image");
 
 require("./models/assocations");
 
 const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req, _, cb) => {
     const { saveType } = req.query;
     if (saveType) cb(null, `uploads/${saveType}`);
     else cb(null, "uploads");
   },
-  filename: (req, file, cb) => {
-    console.log(req.query);
-    const { name, id } = req.query;
+  filename: (_, file, cb) => {
     const imageExtension = file.originalname.split(".")[1];
-    cb(null, id + "-" + name + "." + imageExtension);
+    const timestamp = new Date().getMilliseconds();
+    const randomString = Math.random().toString(36).substring(7);
+    cb(null, `${timestamp}_${randomString}.${imageExtension}`);
   },
 });
 
@@ -54,6 +55,8 @@ app.use(
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
 app.use("/organizations", organizationRoutes);
+
+app.use("/images", imageRoutes);
 
 app.use(errorHandler);
 
