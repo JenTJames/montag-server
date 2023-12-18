@@ -231,7 +231,7 @@ exports.uploadUserImage = async (req, res, next) => {
   const { id } = req.query;
   const file = req.file;
   if (!file) {
-    res.status(200).send(new Response(200, "OK: No file received"));
+    res.sendStatus(204);
     return;
   }
   try {
