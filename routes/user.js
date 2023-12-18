@@ -8,6 +8,7 @@ router.get("", userController.getUser);
 
 router.post("/", userController.createUser);
 router.post("/authenticate", userController.authenticate);
+router.post("/uploads", userController.uploadUserImage);
 
 router.put("/", userController.updateUser);
 

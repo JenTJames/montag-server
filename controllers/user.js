@@ -225,3 +225,26 @@ exports.checkDuplicatePhoneNumber = async (phoneNumber) => {
     return error;
   }
 };
+
+// Handles upload for users
+exports.uploadUserImage = async (req, res, next) => {
+  const { id } = req.query;
+  const file = req.file;
+  if (!file) {
+    res.status(200).send(new Response(200, "OK: No file received"));
+    return;
+  }
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      const error = new Error("Could not locate the user with the given ID");
+      error.code = 400;
+      return next(error);
+    }
+    user.image = file.filename;
+    user.save();
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
