@@ -243,7 +243,7 @@ exports.uploadUserImage = async (req, res, next) => {
     }
     user.image = file.filename;
     user.save();
-    res.sendStatus(200);
+    res.status(200).send(file.filename);
   } catch (error) {
     next(error);
   }
