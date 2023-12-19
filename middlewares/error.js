@@ -1,4 +1,5 @@
 module.exports = (error, _, res, next) => {
+  console.log(error.message);
   console.log(error);
   let message = "Internal Server Error";
   switch (error.code) {
