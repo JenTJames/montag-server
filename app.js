@@ -9,6 +9,7 @@ const sequelize = require("./utils/database");
 const errorHandler = require("./middlewares/error");
 const userRoutes = require("./routes/user");
 const roleRoutes = require("./routes/role");
+const jobFamilyRoutes = require("./routes/jobFamily");
 const organizationRoutes = require("./routes/organization");
 const imageRoutes = require("./routes/image");
 
@@ -54,6 +55,7 @@ app.use(
 
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
+app.use("/jobFamilies", jobFamilyRoutes);
 app.use("/organizations", organizationRoutes);
 
 app.use("/images", imageRoutes);
