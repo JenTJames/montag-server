@@ -676,6 +676,10 @@ describe("../controllers/user.js", () => {
           res.statusCode = code;
           return res;
         },
+        status: (code) => {
+          res.statusCode = code;
+          return res;
+        },
       };
     });
 
@@ -712,9 +716,7 @@ describe("../controllers/user.js", () => {
         save: () => {},
       });
 
-      await UserController.uploadUserImage(req, res, (error) => {
-        console.log(error);
-      });
+      await UserController.uploadUserImage(req, res, () => {});
 
       expect(res.statusCode).to.equal(200);
     });
