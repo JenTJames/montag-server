@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 
 const sequelize = require("./utils/database");
 const errorHandler = require("./middlewares/error");
+const skillRoutes = require("./routes/skill");
 const userRoutes = require("./routes/user");
 const roleRoutes = require("./routes/role");
 const jobFamilyRoutes = require("./routes/jobFamily");
@@ -56,6 +57,7 @@ app.use(
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
 app.use("/jobFamilies", jobFamilyRoutes);
+app.use("/skills", skillRoutes);
 app.use("/organizations", organizationRoutes);
 
 app.use("/images", imageRoutes);
