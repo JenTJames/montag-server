@@ -10,7 +10,6 @@ exports.getSkills = async (req, res, next) => {
           },
         })
       : await Skill.findAll();
-    if (!skills.length) return res.sendStatus(204);
     res.status(200).send(skills);
   } catch (error) {
     next(error, req, res, next);
