@@ -13,6 +13,7 @@ const roleRoutes = require("./routes/role");
 const jobFamilyRoutes = require("./routes/jobFamily");
 const organizationRoutes = require("./routes/organization");
 const imageRoutes = require("./routes/image");
+const countryRoutes = require("./routes/country");
 
 require("./models/assocations");
 
@@ -59,6 +60,7 @@ app.use("/roles", roleRoutes);
 app.use("/jobFamilies", jobFamilyRoutes);
 app.use("/skills", skillRoutes);
 app.use("/organizations", organizationRoutes);
+app.use("/countries", countryRoutes);
 
 app.use("/images", imageRoutes);
 
