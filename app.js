@@ -10,10 +10,11 @@ const errorHandler = require("./middlewares/error");
 const skillRoutes = require("./routes/skill");
 const userRoutes = require("./routes/user");
 const roleRoutes = require("./routes/role");
-const jobFamilyRoutes = require("./routes/jobFamily");
-const organizationRoutes = require("./routes/organization");
+const perkRoutes = require("./routes/perk");
 const imageRoutes = require("./routes/image");
 const countryRoutes = require("./routes/country");
+const jobFamilyRoutes = require("./routes/jobFamily");
+const organizationRoutes = require("./routes/organization");
 
 require("./models/assocations");
 
@@ -57,10 +58,11 @@ app.use(
 
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
-app.use("/jobFamilies", jobFamilyRoutes);
+app.use("/perks", perkRoutes);
 app.use("/skills", skillRoutes);
-app.use("/organizations", organizationRoutes);
 app.use("/countries", countryRoutes);
+app.use("/jobFamilies", jobFamilyRoutes);
+app.use("/organizations", organizationRoutes);
 
 app.use("/images", imageRoutes);
 
