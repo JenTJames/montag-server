@@ -20,10 +20,12 @@ JobFamily.hasMany(Skill);
 JobFamily.hasMany(Job);
 
 Skill.belongsTo(JobFamily);
+Skill.belongsToMany(Job, { through: "job_skills" });
 
 Job.belongsTo(JobFamily);
 Job.belongsToMany(Perk, { through: "job_perks" });
 Job.belongsToMany(Country, { as: "locations", through: "job_locations" });
+Job.belongsToMany(Skill, { through: "job_skills" });
 
 Perk.belongsToMany(Job, { through: "job_perks" });
 

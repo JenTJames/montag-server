@@ -11,6 +11,7 @@ const Perk = sequelize.define("perks", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
 });
 
