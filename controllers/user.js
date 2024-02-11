@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 
 const User = require("../models/User");
 const roleController = require("../controllers/role");
+const jobController = require("../controllers/job");
 
 exports.getUser = async (req, res, next) => {
   const { organization } = req.query;
@@ -147,6 +148,18 @@ exports.authenticate = async (req, res, next) => {
     user.password = undefined;
     if (isVerified) return res.status(200).send(user);
     return res.sendStatus(401);
+  } catch (error) {
+    next(error, req, res, next);
+  }
+};
+
+exports.getUserPostedJobs = async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    const jobs = await jobController.findUserPostedJobs(userId);
+    if (!jobs || !jobs.length) return res.sendStatus(204);
+    res.status(200).send(jobs);
   } catch (error) {
     next(error, req, res, next);
   }

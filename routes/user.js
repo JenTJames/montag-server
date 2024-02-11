@@ -5,6 +5,7 @@ const userController = require("../controllers/user");
 const router = express.Router();
 
 router.get("", userController.getUser);
+router.get("/:userId/jobs", userController.getUserPostedJobs);
 
 router.post("/", userController.createUser);
 router.post("/authenticate", userController.authenticate);

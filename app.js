@@ -72,7 +72,7 @@ app.use(errorHandler);
 
 sequelize
   .sync({
-    // alter: true,
+    alter: true,
     // force: true,
   })
   .then(() => {

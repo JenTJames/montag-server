@@ -51,4 +51,15 @@ describe("../controllers/perk.js", () => {
       expect(res.data.length).to.equal(2);
     });
   });
+
+  describe("findTruePerks", () => {
+    it("should return an error if the promise is rejected", async () => {
+      sinon.stub(Promise, "all").throws(new Error("Something went wrong"));
+
+      const error = await PerkController.findTruePerks({});
+
+      expect(error).to.be.an.instanceOf(Error);
+      expect(error.message).to.equal("Something went wrong");
+    });
+  });
 });

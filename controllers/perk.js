@@ -12,16 +12,20 @@ exports.findPerks = async (req, res, next) => {
 
 exports.findTruePerks = async (perksObject) => {
   const perks = [];
-  await Promise.all(
-    Object.keys(perksObject).map(async (perk) => {
-      if (perksObject[perk]) {
-        const perkName = convertCamelCaseToSentence(perk);
-        const storedPerk = await findPerkByName(perkName);
-        perks.push(storedPerk);
-      }
-    })
-  );
-  return perks;
+  try {
+    await Promise.all(
+      Object.keys(perksObject).map(async (perk) => {
+        if (perksObject[perk]) {
+          const perkName = convertCamelCaseToSentence(perk);
+          const storedPerk = await findPerkByName(perkName);
+          perks.push(storedPerk);
+        }
+      })
+    );
+    return perks;
+  } catch (error) {
+    return error;
+  }
 };
 
 // Private Methods

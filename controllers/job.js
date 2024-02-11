@@ -47,9 +47,14 @@ exports.createJob = async (req, res, next) => {
   const transaction = await sequelize.transaction();
   try {
     const savedJob = await Job.create(job, { transaction });
+
+    //save the job family against the job
     await savedJob.setJobFamily(jobFamilyId, {
       transaction,
     });
+
+    // save the posted by user against the job
+    await savedJob.setPostedBy(postedBy, { transaction });
 
     // Gets all skill IDs from skills and saves it
     const skillIds = getIds(skills);
@@ -73,6 +78,25 @@ exports.createJob = async (req, res, next) => {
   }
 };
 
+exports.findUserPostedJobs = async (userId) => {
+  if (!userId) {
+    const error = new Error("Invalid User ID");
+    error.status = 400;
+    return error;
+  }
+  try {
+    const jobs = await Job.findAll({
+      where: {
+        postedBy: userId,
+      },
+    });
+    return jobs;
+  } catch (error) {
+    error.status = 500;
+    return error;
+  }
+};
+
 const isJobValid = (job) => {
   const {
     title,
@@ -89,6 +113,7 @@ const isJobValid = (job) => {
     perks,
     locations,
     skills,
+    postedBy,
   } = job;
   if (
     !title ||
@@ -104,7 +129,8 @@ const isJobValid = (job) => {
     !jobFamilyId ||
     !perks ||
     !locations ||
-    !skills
+    !skills ||
+    !postedBy
   )
     return false;
   return true;
