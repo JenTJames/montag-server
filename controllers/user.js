@@ -21,6 +21,21 @@ exports.getUser = async (req, res, next) => {
   res.status(200).send(user);
 };
 
+exports.getUserAvatarName = async (req, res, next) => {
+  const { userId } = req.params;
+  try {
+    const avatarName = await User.findOne({
+      where: {
+        id: userId,
+      },
+      attributes: ["image"],
+    });
+    res.status(200).send(avatarName);
+  } catch (error) {
+    next(error, req, res, next);
+  }
+};
+
 exports.createUser = async (req, res, next) => {
   const user = req.body;
   if (
