@@ -1,4 +1,6 @@
 const Job = require("../models/Job");
+const Organization = require("../models/Organization");
+const User = require("../models/User");
 const sequelize = require("../utils/database");
 const { getIds } = require("../utils/lib");
 const perkController = require("./perk");
@@ -89,9 +91,23 @@ exports.findUserPostedJobs = async (userId) => {
       where: {
         postedBy: userId,
       },
+      include: [
+        {
+          model: User,
+          as: "postedByUser",
+          attributes: ["id", "firstname", "lastname", "email"],
+          include: [
+            {
+              model: Organization,
+              attributes: ["logo"],
+            },
+          ],
+        },
+      ],
     });
     return jobs;
   } catch (error) {
+    console.log(error);
     error.status = 500;
     return error;
   }

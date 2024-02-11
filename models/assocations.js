@@ -24,7 +24,7 @@ Skill.belongsTo(JobFamily);
 Skill.belongsToMany(Job, { through: "job_skills" });
 
 Job.belongsTo(JobFamily);
-Job.belongsTo(User, { foreignKey: "postedBy" });
+Job.belongsTo(User, { as: "postedByUser", foreignKey: "postedBy" });
 Job.belongsToMany(Perk, { through: "job_perks" });
 Job.belongsToMany(Country, { as: "locations", through: "job_locations" });
 Job.belongsToMany(Skill, { through: "job_skills" });
