@@ -6,4 +6,6 @@ const router = express.Router();
 
 router.post("/", jobController.createJob);
 
+router.get("/:userId", jobController.findJobById);
+
 module.exports = router;

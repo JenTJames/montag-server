@@ -80,6 +80,16 @@ exports.createJob = async (req, res, next) => {
   }
 };
 
+exports.findJobById = async (req, res, next) => {
+  const { userId } = req.params;
+  try {
+    const job = await Job.findByPk(userId);
+    res.status(200).send(job);
+  } catch (error) {
+    next(error, req, res, next);
+  }
+};
+
 exports.findUserPostedJobs = async (userId) => {
   if (!userId) {
     const error = new Error("Invalid User ID");
