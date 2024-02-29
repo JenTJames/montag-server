@@ -76,8 +76,8 @@ sequelize
     // force: true,
   })
   .then(() => {
-    app.listen(process.env.PORT || 3001, () => {
-      console.log("App running on port " + process.env.PORT || 3001);
+    app.listen(8080, () => {
+      console.log("App running on port " + 8080);
     });
   })
   .catch((error) => {
