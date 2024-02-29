@@ -32,14 +32,3 @@ Job.belongsToMany(Skill, { through: "job_skills" });
 Perk.belongsToMany(Job, { through: "job_perks" });
 
 Country.belongsToMany(Job, { through: "job_locations" });
-
-module.exports = {
-  Job,
-  User,
-  Role,
-  Perk,
-  Skill,
-  Country,
-  JobFamily,
-  Organization,
-};

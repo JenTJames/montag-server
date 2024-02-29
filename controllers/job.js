@@ -1,5 +1,9 @@
+const Country = require("../models/Country");
 const Job = require("../models/Job");
+const JobFamily = require("../models/JobFamily");
 const Organization = require("../models/Organization");
+const Perk = require("../models/Perk");
+const Skill = require("../models/Skill");
 const User = require("../models/User");
 const sequelize = require("../utils/database");
 const { getIds } = require("../utils/lib");
@@ -83,7 +87,32 @@ exports.createJob = async (req, res, next) => {
 exports.findJobById = async (req, res, next) => {
   const { userId } = req.params;
   try {
-    const job = await Job.findByPk(userId);
+    const job = await Job.findByPk(userId, {
+      include: [
+        {
+          model: JobFamily,
+        },
+        {
+          model: User,
+          as: "postedByUser",
+          include: [
+            {
+              model: Organization,
+            },
+          ],
+        },
+        {
+          model: Perk,
+        },
+        {
+          model: Country,
+          as: "locations",
+        },
+        {
+          model: Skill,
+        },
+      ],
+    });
     res.status(200).send(job);
   } catch (error) {
     next(error, req, res, next);
